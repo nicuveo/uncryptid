@@ -1,0 +1,75 @@
+#! /usr/bin/ruby -w
+
+
+
+# Point
+
+Point = Struct.new(:row, :col)
+
+
+
+# Hexagon
+
+class Hexagon
+  def initialize()
+    @type = :none
+    @distances = {
+      :mountain    => nil,
+      :water       => nil,
+      :forest      => nil,
+      :desert      => nil,
+      :swamp       => nil,
+      :bears       => nil,
+      :cougars     => nil,
+      :blue_shack  => nil,
+      :blue_stone  => nil,
+      :green_shack => nil,
+      :green_stone => nil,
+      :white_shack => nil,
+      :white_stone => nil,
+      :black_shack => nil,
+      :black_stone => nil,
+    }
+  end
+end
+
+
+
+# Board
+
+class Board
+  @@width  = 12
+  @@height = 8
+
+  def initialize()
+    @data = Array.new(@@width * @@height, Hexagon.new())
+  end
+
+  def self.is_in?(pos)
+    return pos.col >= 0 && pos.col < @@width &&
+           pos.row >= 0 && pos.row < @@height
+  end
+
+  def self.neighbours(pos)
+    r, c = pos.row, pos.col
+    return [
+      Point.new(r-1,c  ),
+      Point.new(r+1,c  ),
+      Point.new(r,  c-1),
+      Point.new(r,  c+1),
+      Point.new(r-1,c+1),
+      Point.new(r+1,c-1),
+    ].select { |p| self.is_in?(p) }
+  end
+
+  def [](pos)
+    return self.data[pos.rol * @width + pos.col]
+  end
+end
+
+
+
+# Test
+
+p = Point.new(1,1)
+puts Board.neighbours(p)
