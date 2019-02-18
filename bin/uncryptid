@@ -81,7 +81,7 @@ class Board
   end
 
   def [](pos)
-    return Board.is_in?(pos) ? @data[pos.row * @@width + pos.col] : nil
+    return @data[pos.row * @@width + pos.col] if Board.is_in?(pos)
   end
 
   def set(pos, elements)
