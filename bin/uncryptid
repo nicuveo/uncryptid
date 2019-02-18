@@ -63,8 +63,8 @@ end
 ### Board
 
 class Board
-  @@width  = 8
-  @@height = 8
+  @@width  = 12
+  @@height =  9
 
   def self.width
     @@width
@@ -84,14 +84,26 @@ class Board
 
   def self.neighbours(pos)
     r, c = pos.row, pos.col
-    return [
-      Point.new(r-1,c  ),
-      Point.new(r+1,c  ),
-      Point.new(r,  c-1),
-      Point.new(r,  c+1),
-      Point.new(r-1,c+1),
-      Point.new(r+1,c-1),
-    ].select { |p| self.is_in?(p) }
+    if c.even?
+      result = [
+        Point.new(r-1,c  ),
+        Point.new(r+1,c  ),
+        Point.new(r,  c-1),
+        Point.new(r,  c+1),
+        Point.new(r-1,c-1),
+        Point.new(r-1,c+1),
+      ]
+    else
+      result = [
+        Point.new(r-1,c  ),
+        Point.new(r+1,c  ),
+        Point.new(r,  c-1),
+        Point.new(r,  c+1),
+        Point.new(r+1,c-1),
+        Point.new(r+1,c+1),
+      ]
+    end
+    return result.select{ |p| self.is_in?(p) }
   end
 
   def [](pos)
@@ -252,7 +264,7 @@ def draw(board, filename)
     end
   end
 
-  rvg = RVG.new(1200,800).viewbox(0,0,1200,800) do |canvas|
+  rvg = RVG.new(1000,1000).viewbox(0,0,1000,1000) do |canvas|
     canvas.background_fill = "white"
     terrain_colors = { :forest   => "LightGreen",
                        :desert   => "khaki",
@@ -272,14 +284,14 @@ def draw(board, filename)
                            :black_shack => ["black", :triangle],
                            :black_stone => ["black", :octogon],
                          }
-    canvas.translate(80, 600)
-    size = 42
+    canvas.translate(87, 131)
+    size = 50
 
     for y in 0 ... Board.height
       for x in 0 ... Board.width
         hex = board[Point.new(y,x)]
         if hex.type
-          canvas.g.translate(size * (x+y) * 1.5, size * (x-y) * dy) do |body|
+          canvas.g.translate(size * x * 1.5, size * dy * (y * 2 + x%2)) do |body|
             body.styles(:fill => terrain_colors[hex.type], :stroke => "white", :stroke_width => 2)
             hexagon.call(body, size)
             for a in ANIMALS
@@ -314,16 +326,22 @@ end
 ### TMP
 
 b = Board.new()
-b.set(Point.new(4,4), :water,    [:bears, :white_stone])
-b.set(Point.new(6,2), :mountain, [:black_stone])
-b.set(Point.new(6,1), :swamp,    [])
-b.set(Point.new(3,0), :desert,   [:cougars])
-b.set(Point.new(3,1), :desert,   [:cougars])
-b.set(Point.new(3,2), :desert,   [:green_shack])
-b.set(Point.new(3,3), :desert,   [])
-b.set(Point.new(4,1), :forest,   [:blue_shack])
-b.set(Point.new(4,2), :forest,   [])
-b.set(Point.new(4,3), :water ,   [:bears])
-b.set(Point.new(5,4), :forest,   [])
+b.set(Point.new(0,0) , :forest,   [:white_stone])
+b.set(Point.new(8,0) , :swamp,    [:white_stone])
+b.set(Point.new(0,11), :swamp,    [:white_stone])
+b.set(Point.new(8,11), :swamp,    [:white_stone])
+b.set(Point.new(4,4),  :water,    [:bears])
+b.set(Point.new(6,2),  :mountain, [:black_stone])
+b.set(Point.new(6,1),  :swamp,    [])
+b.set(Point.new(3,0),  :desert,   [:cougars])
+b.set(Point.new(3,1),  :desert,   [:cougars])
+b.set(Point.new(3,2),  :desert,   [:green_shack])
+b.set(Point.new(3,3),  :desert,   [])
+b.set(Point.new(4,1),  :forest,   [:blue_shack])
+b.set(Point.new(4,2),  :forest,   [])
+b.set(Point.new(4,3),  :water ,   [:bears])
+b.set(Point.new(5,4),  :forest,   [])
 all_clues(NORMAL).each{ |c| puts c.text }
 draw(b, "test.png")
+p Board.neighbours(Point.new(4,2))
+p Board.neighbours(Point.new(4,3))
