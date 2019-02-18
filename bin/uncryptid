@@ -304,11 +304,11 @@ def draw(board, filename)
 
   rvg = RVG.new(1000,1000).viewbox(0,0,1000,1000) do |canvas|
     canvas.background_fill = "white"
-    terrain_colors = { :forest   => "PaleGreen3",
-                       :desert   => "khaki",
-                       :mountain => "cornsilk3",
-                       :water    => "PaleTurquoise1",
-                       :swamp    => "MediumPurple4",
+    terrain_colors = { :forest   => "LimeGreen",
+                       :desert   => "yellow2",
+                       :mountain => "LightSteelBlue",
+                       :water    => "DeepSkyBlue2",
+                       :swamp    => "LightPink4",
                      }
     animal_colors = { :bears   => "black",
                       :cougars => "red",
@@ -335,7 +335,7 @@ def draw(board, filename)
             for a in ANIMALS
               if hex.distances[a] == 0
                 body.g do |marker|
-                  marker.styles(:fill_opacity => 0, :stroke => animal_colors[a], :stroke_width => 2)
+                  marker.styles(:fill_opacity => 0, :stroke => animal_colors[a], :stroke_width => 3)
                   hexagon.call(marker, size * 0.8)
                 end
               end
