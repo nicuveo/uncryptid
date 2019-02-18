@@ -102,9 +102,17 @@ def check(board, pos, clue)
   return clue.predicate.call(clue.elements.map{|e| board.distance(pos, e) }.min)
 end
 
-TERRAIN_PAIRS     = TERRAINS.product(TERRAINS).select{ |a,b| a < b }
-TERRAIN_CLUES     = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], within(0)) }
-TERRAIN_NOT_CLUES = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], not_within(0)) }
+TERRAIN_PAIRS      = TERRAINS.product(TERRAINS).select{ |a,b| a < b }
+TERRAIN_CLUES      = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], within(0)) }
+TERRAIN_NOT_CLUES  = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], not_within(0)) }
+
+WITHIN_1_ELEMENTS  = TERRAINS.map{ |t| [t] } + [ANIMALS]
+WITHIN_1_CLUES     = WITHIN_1_ELEMENTS.map{ |es| Clue.new(es, within(1)) }
+WITHIN_1_NOT_CLUES = WITHIN_1_ELEMENTS.map{ |es| Clue.new(es, not_within(1)) }
+
+WITHIN_2_ELEMENTS  = ANIMALS
+WITHIN_2_CLUES     = WITHIN_2_ELEMENTS.map{ |es| Clue.new(es, within(2)) }
+WITHIN_2_NOT_CLUES = WITHIN_2_ELEMENTS.map{ |es| Clue.new(es, not_within(2)) }
 
 
 
