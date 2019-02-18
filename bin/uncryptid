@@ -118,7 +118,7 @@ def not_within(d)
 end
 
 def check(board, pos, clue)
-  return clue.predicate.call(clue.elements.map{|e| board.distance(pos, e) }.min)
+  return clue.predicate.call(clue.elements.map{ |e| board.distance(pos, e) }.min)
 end
 
 def all_clues(mode)
