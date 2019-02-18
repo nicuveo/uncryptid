@@ -72,6 +72,16 @@ class Board
   def [](pos)
     return self.data[pos.rol * @width + pos.col]
   end
+
+  def distance(pos, element)
+    hex = self[pos]
+    if hex != nil
+      # TODO handle nil, recurse on neighbours?
+      return hex.distances[element]
+    else
+      return -1
+    end
+  end
 end
 
 
