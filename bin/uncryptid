@@ -23,12 +23,6 @@ BLUE_STRUCTURES  = [:blue_shack,  :blue_stone]
 GREEN_STRUCTURES = [:green_shack, :green_stone]
 WHITE_STRUCTURES = [:white_shack, :white_stone]
 BLACK_STRUCTURES = [:black_shack, :black_stone]
-ALL_STRUCTURES = BLUE_STRUCTURES  +
-                 GREEN_STRUCTURES +
-                 WHITE_STRUCTURES +
-                 BLACK_STRUCTURES
-
-ELEMENTS = TERRAINS + ANIMALS + ALL_STRUCTURES
 
 
 
@@ -53,7 +47,7 @@ class Cell
   attr_reader :distances
 
   def initialize()
-    @distances = Hash[ELEMENTS.map{ |e| [e,nil] }]
+    @distances = Hash.new
   end
 end
 
