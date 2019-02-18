@@ -48,7 +48,7 @@ class Cell
 
   def initialize()
     @distances = Hash.new
-    @distances.default = 99
+    @distances.default = 4
   end
 end
 
