@@ -66,6 +66,13 @@ class Board
   @@width  = 8
   @@height = 8
 
+  def self.width
+    @@width
+  end
+  def self.height
+    @@height
+  end
+
   def initialize()
     @data = Array.new(@@width * @@height) { Cell.new }
   end
@@ -93,112 +100,37 @@ class Board
 
   def set(pos, type, elements)
     self[pos].type = type
-    for e in elements + [type]
-      queue = [[pos,0]]
-      while (current, d = queue.shift)
-        ds = self[current].distances
-        if d < ds[e]
-          ds[e] = d
-          queue += Board.neighbours(current).map{|p| [p,d+1]}
-        end
-      end
-    end
+    propagate(pos, type)
+    elements.each{ |e| propagate(pos, e) }
+  end
+
+  def add(pos, element)
+    self[pos].elements << element
+    propagate(pos, element)
   end
 
   def distance(pos, element)
     return self[pos]&.distances[element]
   end
 
-  def draw(filename)
-    dy = Math.sqrt(3) / 2.0
-    hexagon = lambda do |body, size|
-      body.polygon(-1.0 * size,  0,
-                   -0.5 * size,  dy * size,
-                    0.5 * size,  dy * size,
-                    1.0 * size,  0,
-                    0.5 * size, -dy * size,
-                   -0.5 * size, -dy * size)
-    end
-    triangle = lambda do |body, color, size|
-      body.g.rotate(90) do |t|
-        t.styles(:fill => color, :stroke => "black", :stroke_width => 1)
-        t.polygon(-1.0 * size,  0,
-                   0.5 * size,  dy * size,
-                   0.5 * size, -dy * size)
+  private
+  def propagate(pos, element)
+    queue = [[pos,0]]
+    while (current, d = queue.shift)
+      ds = self[current].distances
+      if d < ds[element]
+        ds[element] = d
+        queue += Board.neighbours(current).map{|p| [p,d+1]}
       end
     end
-    octogon = lambda do |body, color, size|
-      r45 = Math.sqrt(2) / 2
-      body.g.rotate(22.5) do |t|
-        t.styles(:fill => color, :stroke => "black", :stroke_width => 1)
-        t.polygon(-1.0 * size,  0,
-                  -r45 * size,  r45 * size,
-                   0,           1.0 * size,
-                   r45 * size,  r45 * size,
-                   1.0 * size,  0,
-                   r45 * size, -r45 * size,
-                   0,          -1.0 * size,
-                  -r45 * size, -r45 * size)
-      end
-    end
-
-    rvg = RVG.new(1200,800).viewbox(0,0,1200,800) do |canvas|
-      canvas.background_fill = "white"
-      terrain_colors = { :forest   => "LightGreen",
-                         :desert   => "khaki",
-                         :mountain => "LightGrey",
-                         :water    => "PaleTurquoise1",
-                         :swamp    => "plum",
-                       }
-      animal_colors = { :bears   => "black",
-                        :cougars => "red",
-                      }
-      structure_property = { :blue_shack  => ["RoyalBlue", :triangle],
-                             :blue_stone  => ["RoyalBlue", :octogon],
-                             :green_shack => ["chartreuse", :triangle],
-                             :green_stone => ["chartreuse", :octogon],
-                             :white_shack => ["white", :triangle],
-                             :white_stone => ["white", :octogon],
-                             :black_shack => ["black", :triangle],
-                             :black_stone => ["black", :octogon],
-                           }
-      canvas.translate(80, 600)
-      size = 42
-
-      for y in 0 ... @@height
-        for x in 0 ... @@width
-          hex = self[Point.new(y,x)]
-          if hex.type
-            canvas.g.translate(size * (x+y) * 1.5, size * (x-y) * dy) do |body|
-              body.styles(:fill => terrain_colors[hex.type], :stroke => "white", :stroke_width => 2)
-              hexagon.call(body, size)
-              for a in ANIMALS
-                if hex.distances[a] == 0
-                  body.g do |marker|
-                    marker.styles(:fill_opacity => 0, :stroke => animal_colors[a], :stroke_width => 2)
-                    hexagon.call(marker, size * 0.8)
-                  end
-                end
-              end
-              for s in ALL_STRUCTURES
-                if hex.distances[s] == 0
-                  color, shape = structure_property[s]
-                  case shape
-                  when :triangle
-                    triangle.call(body, color, size * 0.3)
-                  when :octogon
-                    octogon.call(body, color, size * 0.3)
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-    end
-    rvg.draw.write(filename)
   end
 end
+
+
+
+# Tiles
+
+TILE1 = [[:water],[:water],[:forest]]
 
 
 
@@ -257,6 +189,100 @@ end
 
 
 
+### Rendering
+
+def draw(board, filename)
+  dy = Math.sqrt(3) / 2.0
+  hexagon = lambda do |body, size|
+    body.polygon(-1.0 * size,  0,
+                 -0.5 * size,  dy * size,
+                 0.5 * size,  dy * size,
+                 1.0 * size,  0,
+                 0.5 * size, -dy * size,
+                 -0.5 * size, -dy * size)
+  end
+  triangle = lambda do |body, color, size|
+    body.g.rotate(90) do |t|
+      t.styles(:fill => color, :stroke => "black", :stroke_width => 1)
+      t.polygon(-1.0 * size,  0,
+                0.5 * size,  dy * size,
+                0.5 * size, -dy * size)
+    end
+  end
+  octogon = lambda do |body, color, size|
+    r45 = Math.sqrt(2) / 2
+    body.g.rotate(22.5) do |t|
+      t.styles(:fill => color, :stroke => "black", :stroke_width => 1)
+      t.polygon(-1.0 * size,  0,
+                -r45 * size,  r45 * size,
+                0,           1.0 * size,
+                r45 * size,  r45 * size,
+                1.0 * size,  0,
+                r45 * size, -r45 * size,
+                0,          -1.0 * size,
+                -r45 * size, -r45 * size)
+    end
+  end
+
+  rvg = RVG.new(1200,800).viewbox(0,0,1200,800) do |canvas|
+    canvas.background_fill = "white"
+    terrain_colors = { :forest   => "LightGreen",
+                       :desert   => "khaki",
+                       :mountain => "LightGrey",
+                       :water    => "PaleTurquoise1",
+                       :swamp    => "plum",
+                     }
+    animal_colors = { :bears   => "black",
+                      :cougars => "red",
+                    }
+    structure_property = { :blue_shack  => ["RoyalBlue", :triangle],
+                           :blue_stone  => ["RoyalBlue", :octogon],
+                           :green_shack => ["chartreuse", :triangle],
+                           :green_stone => ["chartreuse", :octogon],
+                           :white_shack => ["white", :triangle],
+                           :white_stone => ["white", :octogon],
+                           :black_shack => ["black", :triangle],
+                           :black_stone => ["black", :octogon],
+                         }
+    canvas.translate(80, 600)
+    size = 42
+
+    for y in 0 ... Board.height
+      for x in 0 ... Board.width
+        hex = board[Point.new(y,x)]
+        if hex.type
+          canvas.g.translate(size * (x+y) * 1.5, size * (x-y) * dy) do |body|
+            body.styles(:fill => terrain_colors[hex.type], :stroke => "white", :stroke_width => 2)
+            hexagon.call(body, size)
+            for a in ANIMALS
+              if hex.distances[a] == 0
+                body.g do |marker|
+                  marker.styles(:fill_opacity => 0, :stroke => animal_colors[a], :stroke_width => 2)
+                  hexagon.call(marker, size * 0.8)
+                end
+              end
+            end
+            for s in ALL_STRUCTURES
+              if hex.distances[s] == 0
+                color, shape = structure_property[s]
+                case shape
+                when :triangle
+                  triangle.call(body, color, size * 0.3)
+                when :octogon
+                  octogon.call(body, color, size * 0.3)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+  rvg.draw.write(filename)
+end
+
+
+
 ### TMP
 
 b = Board.new()
@@ -272,4 +298,4 @@ b.set(Point.new(4,2), :forest,   [])
 b.set(Point.new(4,3), :water ,   [:bears])
 b.set(Point.new(5,4), :forest,   [])
 all_clues(NORMAL).each{ |c| puts c.text }
-b.draw("test.png")
+draw(b, "test.png")
