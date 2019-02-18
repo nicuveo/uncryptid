@@ -48,6 +48,7 @@ class Cell
 
   def initialize()
     @distances = Hash.new
+    @distances.default = 99
   end
 end
 
@@ -89,7 +90,7 @@ class Board
       queue = [[pos,0]]
       while (current, d = queue.shift)
         ds = self[current].distances
-        if d < ds.fetch(e, 99)
+        if d < ds[e]
           ds[e] = d
           queue += Board.neighbours(current).map{|p| [p,d+1]}
         end
