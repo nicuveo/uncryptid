@@ -8,28 +8,35 @@ Point = Struct.new(:row, :col)
 
 
 
+# Elements
+
+TERRAINS = [:mountain,
+            :forest,
+            :desert,
+            :swamp,
+            :water,
+           ]
+
+ANIMALS = [:bears, :cougars]
+
+BLUE_STRUCTURES  = [:blue_shack,  :blue_stone]
+GREEN_STRUCTURES = [:green_shack, :green_stone]
+WHITE_STRUCTURES = [:white_shack, :white_stone]
+BLACK_STRUCTURES = [:black_shack, :black_stone]
+STRUCTURES = BLUE_STRUCTURES  +
+             GREEN_STRUCTURES +
+             WHITE_STRUCTURES +
+             BLACK_STRUCTURES
+
+ELEMENTS = TERRAINS + ANIMALS + STRUCTURES
+
+
+
 # Hexagon
 
 class Hexagon
   def initialize()
-    @type = :none
-    @distances = {
-      :mountain    => nil,
-      :water       => nil,
-      :forest      => nil,
-      :desert      => nil,
-      :swamp       => nil,
-      :bears       => nil,
-      :cougars     => nil,
-      :blue_shack  => nil,
-      :blue_stone  => nil,
-      :green_shack => nil,
-      :green_stone => nil,
-      :white_shack => nil,
-      :white_stone => nil,
-      :black_shack => nil,
-      :black_stone => nil,
-    }
+    @distances = Hash(ELEMENTS.map{ |e| [e,nil] })
   end
 end
 
