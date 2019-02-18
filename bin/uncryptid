@@ -128,9 +128,37 @@ end
 
 
 
-# Tiles
+### Tiles
 
-TILE1 = [[:water],[:water],[:forest]]
+TILE1 = [[[:water],[:water],[:water],[:water],[:forest],[:forest]],
+         [[:swamp],[:swamp],[:water],[:desert],[:forest],[:forest]],
+         [[:swamp],[:swamp],[:desert],[:desert,:bears],[:desert,:bears],[:forest]]
+        ]
+TILE2 = [[[:swamp,:cougars],[:forest,:cougars],[:forest,:cougars],[:forest],[:forest],[:forest]],
+         [[:swamp],[:swamp],[:forest],[:desert],[:desert],[:desert]],
+         [[:swamp],[:mountain],[:mountain],[:mountain],[:mountain],[:desert]]
+        ]
+TILE3 = [[[:swamp],[:swamp],[:forest],[:forest],[:forest],[:water]],
+         [[:swamp,:cougars],[:swamp,:cougars],[:forest],[:mountain],[:water],[:water]],
+         [[:mountain,:cougars],[:mountain],[:mountain],[:mountain],[:water],[:water]]
+        ]
+TILE4 = [[[:desert],[:desert],[:mountain],[:mountain],[:mountain],[:mountain]],
+         [[:desert],[:desert],[:mountain],[:water],[:water],[:water,:cougars]],
+         [[:desert],[:desert],[:desert],[:forest],[:forest],[:forest,:cougars]]
+        ]
+TILE5 = [[[:swamp],[:swamp],[:swamp],[:mountain],[:mountain],[:mountain]],
+         [[:swamp],[:desert],[:desert],[:water],[:mountain],[:mountain,:bears]],
+         [[:desert],[:desert],[:water],[:water],[:water],[:water,:bears]]
+        ]
+TILE6 = [[[:desert,:bears],[:desert],[:swamp],[:swamp],[:swamp],[:forest]],
+         [[:mountain,:bears],[:mountain],[:swamp],[:swamp],[:forest],[:forest]],
+         [[:mountain],[:water],[:water],[:water],[:water],[:forest]]
+        ]
+
+TILES = { :tile1 => TILE1, :tile2 => TILE2,
+          :tile3 => TILE3, :tile4 => TILE4,
+          :tile5 => TILE5, :tile6 => TILE6,
+        }
 
 
 
@@ -196,17 +224,17 @@ def draw(board, filename)
   hexagon = lambda do |body, size|
     body.polygon(-1.0 * size,  0,
                  -0.5 * size,  dy * size,
-                 0.5 * size,  dy * size,
-                 1.0 * size,  0,
-                 0.5 * size, -dy * size,
+                  0.5 * size,  dy * size,
+                  1.0 * size,  0,
+                  0.5 * size, -dy * size,
                  -0.5 * size, -dy * size)
   end
   triangle = lambda do |body, color, size|
     body.g.rotate(90) do |t|
       t.styles(:fill => color, :stroke => "black", :stroke_width => 1)
       t.polygon(-1.0 * size,  0,
-                0.5 * size,  dy * size,
-                0.5 * size, -dy * size)
+                 0.5 * size,  dy * size,
+                 0.5 * size, -dy * size)
     end
   end
   octogon = lambda do |body, color, size|
@@ -215,11 +243,11 @@ def draw(board, filename)
       t.styles(:fill => color, :stroke => "black", :stroke_width => 1)
       t.polygon(-1.0 * size,  0,
                 -r45 * size,  r45 * size,
-                0,           1.0 * size,
-                r45 * size,  r45 * size,
-                1.0 * size,  0,
-                r45 * size, -r45 * size,
-                0,          -1.0 * size,
+                 0,           1.0 * size,
+                 r45 * size,  r45 * size,
+                 1.0 * size,  0,
+                 r45 * size, -r45 * size,
+                 0,          -1.0 * size,
                 -r45 * size, -r45 * size)
     end
   end
