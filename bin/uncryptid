@@ -88,9 +88,9 @@ class Board
     for e in elements
       queue = [[pos,0]]
       while (current, d = queue.shift)
-        if (distances = self[current]&.distances) &&
-           (distances[e] == nil || distances[e] > d)
-          distances[e] = d
+        ds = self[current].distances
+        if d < ds.fetch(e, 99)
+          ds[e] = d
           queue += Board.neighbours(current).map{|p| [p,d+1]}
         end
       end
