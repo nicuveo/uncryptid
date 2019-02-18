@@ -35,8 +35,10 @@ ELEMENTS = TERRAINS + ANIMALS + STRUCTURES
 # Hexagon
 
 class Hexagon
+  attr_reader :distances
+
   def initialize()
-    @distances = Hash(ELEMENTS.map{ |e| [e,nil] })
+    @distances = Hash[ELEMENTS.map{ |e| [e,nil] }]
   end
 end
 
@@ -70,7 +72,24 @@ class Board
   end
 
   def [](pos)
-    return self.data[pos.rol * @width + pos.col]
+    return @data[pos.row * @@width + pos.col]
+  end
+
+  def set(pos, elements)
+    def set_(b, p, e, d)
+      if Board.is_in?(p)
+        hex = b[p]
+        if hex.distances[e] == nil || hex.distances[e] > d
+          hex.distances[e] = d
+          for n in Board.neighbours(p)
+            set_(b, n, e, d+1)
+          end
+        end
+      end
+    end
+    for e in elements
+      set_(self, pos, e, 0)
+    end
   end
 
   def distance(pos, element)
@@ -118,5 +137,7 @@ WITHIN_2_NOT_CLUES = WITHIN_2_ELEMENTS.map{ |es| Clue.new(es, not_within(2)) }
 
 # Test
 
-p = Point.new(1,1)
-puts Board.neighbours(p)
+b = Board.new()
+b.set(Point.new(4,4), [:water, :bears])
+
+puts b
