@@ -86,6 +86,28 @@ end
 
 
 
+# Clues
+
+Clue = Struct.new(:elements, :predicate)
+
+def within(d)
+  return lambda { |x| x <= d }
+end
+
+def not_within(d)
+  return lambda { |x| x > d }
+end
+
+def check(board, pos, clue)
+  return clue.predicate.call(clue.elements.map{|e| board.distance(pos, e) }.min)
+end
+
+TERRAIN_PAIRS     = TERRAINS.product(TERRAINS).select{ |a,b| a < b }
+TERRAIN_CLUES     = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], within(0)) }
+TERRAIN_NOT_CLUES = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], not_within(0)) }
+
+
+
 # Test
 
 p = Point.new(1,1)
