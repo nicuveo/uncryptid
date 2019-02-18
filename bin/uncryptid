@@ -2,17 +2,17 @@
 
 
 
-# Point
+### Point
 
 Point = Struct.new(:row, :col)
 
 
 
-# Elements
+### Elements
 
-TERRAINS = [:mountain,
+TERRAINS = [:desert,
             :forest,
-            :desert,
+            :mountain,
             :swamp,
             :water,
            ]
@@ -23,18 +23,33 @@ BLUE_STRUCTURES  = [:blue_shack,  :blue_stone]
 GREEN_STRUCTURES = [:green_shack, :green_stone]
 WHITE_STRUCTURES = [:white_shack, :white_stone]
 BLACK_STRUCTURES = [:black_shack, :black_stone]
-STRUCTURES = BLUE_STRUCTURES  +
-             GREEN_STRUCTURES +
-             WHITE_STRUCTURES +
-             BLACK_STRUCTURES
+ALL_STRUCTURES = BLUE_STRUCTURES  +
+                 GREEN_STRUCTURES +
+                 WHITE_STRUCTURES +
+                 BLACK_STRUCTURES
 
-ELEMENTS = TERRAINS + ANIMALS + STRUCTURES
+ELEMENTS = TERRAINS + ANIMALS + ALL_STRUCTURES
 
 
 
-# Hexagon
+### Modes
 
-class Hexagon
+Mode = Struct.new(:name, :shacks, :stones, :include_black?, :include_not?)
+
+NORMAL   = Mode.new(:normal,
+                    [:blue_shack, :green_shack, :white_shack],
+                    [:blue_stone, :green_stone, :white_stone],
+                    false, false)
+ADVANCED = Mode.new(:advanced,
+                    [:blue_shack, :green_shack, :white_shack, :black_shack],
+                    [:blue_stone, :green_stone, :white_stone, :black_stone],
+                    true, true)
+
+
+
+### Cell
+
+class Cell
   attr_reader :distances
 
   def initialize()
@@ -44,14 +59,14 @@ end
 
 
 
-# Board
+### Board
 
 class Board
   @@width  = 12
   @@height = 8
 
   def initialize()
-    @data = Array.new(@@width * @@height, Hexagon.new())
+    @data = Array.new(@@width * @@height) { Cell.new }
   end
 
   def self.is_in?(pos)
@@ -72,42 +87,32 @@ class Board
   end
 
   def [](pos)
-    return @data[pos.row * @@width + pos.col]
+    return Board.is_in?(pos) ? @data[pos.row * @@width + pos.col] : nil
   end
 
   def set(pos, elements)
-    def set_(b, p, e, d)
-      if Board.is_in?(p)
-        hex = b[p]
-        if hex.distances[e] == nil || hex.distances[e] > d
-          hex.distances[e] = d
-          for n in Board.neighbours(p)
-            set_(b, n, e, d+1)
-          end
+    for e in elements
+      queue = [[pos,0]]
+      while (current, d = queue.shift)
+        if (distances = self[current]&.distances) &&
+           (distances[e] == nil || distances[e] > d)
+          distances[e] = d
+          queue += Board.neighbours(current).map{|p| [p,d+1]}
         end
       end
-    end
-    for e in elements
-      set_(self, pos, e, 0)
     end
   end
 
   def distance(pos, element)
-    hex = self[pos]
-    if hex != nil
-      # TODO handle nil, recurse on neighbours?
-      return hex.distances[element]
-    else
-      return -1
-    end
+    return self[pos]&.distances[element]
   end
 end
 
 
 
-# Clues
+### Clues
 
-Clue = Struct.new(:elements, :predicate)
+Clue = Struct.new(:text, :elements, :predicate)
 
 def within(d)
   return lambda { |x| x <= d }
@@ -121,23 +126,47 @@ def check(board, pos, clue)
   return clue.predicate.call(clue.elements.map{|e| board.distance(pos, e) }.min)
 end
 
-TERRAIN_PAIRS      = TERRAINS.product(TERRAINS).select{ |a,b| a < b }
-TERRAIN_CLUES      = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], within(0)) }
-TERRAIN_NOT_CLUES  = TERRAIN_PAIRS.map{ |a,b| Clue.new([a,b], not_within(0)) }
+def all_clues(mode)
+  clues = []
+  terrain_pairs = TERRAINS.product(TERRAINS).select{ |a,b| a < b }
 
-WITHIN_1_ELEMENTS  = TERRAINS.map{ |t| [t] } + [ANIMALS]
-WITHIN_1_CLUES     = WITHIN_1_ELEMENTS.map{ |es| Clue.new(es, within(1)) }
-WITHIN_1_NOT_CLUES = WITHIN_1_ELEMENTS.map{ |es| Clue.new(es, not_within(1)) }
+  clues += terrain_pairs.map { |a,b| Clue.new("either #{a} or #{b}", [a,b], within(0)) }
+  clues += TERRAINS.map { |t| Clue.new("within 1 of #{t}", [t], within(1)) }
+  clues << Clue.new("within 1 of animal territory", ANIMALS, within(1))
+  clues << Clue.new("within 2 of a standing stone", mode.stones, within(2))
+  clues << Clue.new("within 2 of an abandoned shack", mode.shacks, within(2))
+  clues << Clue.new("within 2 of bear territory", [:bears], within(2))
+  clues << Clue.new("within 2 of cougar territory", [:cougars], within(2))
+  clues << Clue.new("within 3 of blue structure", BLUE_STRUCTURES, within(3))
+  clues << Clue.new("within 3 of green structure", GREEN_STRUCTURES, within(3))
+  clues << Clue.new("within 3 of white structure", WHITE_STRUCTURES, within(3))
+  if mode.include_black?
+    clues << Clue.new("within 3 of black structure", BLACK_STRUCTURES, within(3))
+  end
 
-WITHIN_2_ELEMENTS  = ANIMALS
-WITHIN_2_CLUES     = WITHIN_2_ELEMENTS.map{ |es| Clue.new(es, within(2)) }
-WITHIN_2_NOT_CLUES = WITHIN_2_ELEMENTS.map{ |es| Clue.new(es, not_within(2)) }
+  if mode.include_not?
+    clues += terrain_pairs.map { |a,b| Clue.new("neither #{a} nor #{b}", [a,b], not_within(0)) }
+    clues += TERRAINS.map { |t| Clue.new("not within 1 of #{t}", [t], not_within(1)) }
+    clues << Clue.new("not within 1 of animal territory", ANIMALS, not_within(1))
+    clues << Clue.new("not within 2 of a standing stone", mode.stones, not_within(2))
+    clues << Clue.new("not within 2 of an abandoned shack", mode.shacks, not_within(2))
+    clues << Clue.new("not within 2 of bear territory", [:bears], not_within(2))
+    clues << Clue.new("not within 2 of cougar territory", [:cougars], not_within(2))
+    clues << Clue.new("not within 3 of blue structure", BLUE_STRUCTURES, not_within(3))
+    clues << Clue.new("not within 3 of green structure", GREEN_STRUCTURES, not_within(3))
+    clues << Clue.new("not within 3 of white structure", WHITE_STRUCTURES, not_within(3))
+    if mode.include_black?
+      clues << Clue.new("not within 3 of black structure", BLACK_STRUCTURES, not_within(3))
+    end
+  end
+
+  return clues
+end
 
 
 
-# Test
+### TMP
 
 b = Board.new()
 b.set(Point.new(4,4), [:water, :bears])
-
-puts b
+all_clues(NORMAL).each{ |c| puts c.text }
