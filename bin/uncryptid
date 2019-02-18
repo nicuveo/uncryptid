@@ -123,7 +123,6 @@ class Board
   end
 
   def set(pos, type, elements)
-    puts "#{pos.row},#{pos.col}: #{type} + #{elements}"
     self[pos].type = type
     propagate(pos, type)
     elements.each{ |e| propagate(pos, e) }
@@ -265,6 +264,13 @@ def all_clues(mode)
   return clues
 end
 
+def matching_clues(mode, board, tokens)
+  return tokens.reduce(all_clues(mode)) do |clues,entry|
+    pos, matches = entry
+    clues.select{ |clue| check(board, pos, clue) == matches }
+  end
+end
+
 
 
 ### Rendering
@@ -363,8 +369,6 @@ end
 
 ### TMP
 
-all_clues(NORMAL).each{ |c| puts c.text }
-
 b = Board[[:tile2],
           [:tile4],
           [:tile5],
@@ -381,3 +385,8 @@ b = Board[[:tile2],
           Point.new(2,9) => :green_shack
          ]
 draw(b, "test.png")
+
+matching_clues(ADVANCED, b,
+               Point.new(2,3) => true,
+               Point.new(2,4) => false,
+              ).each{ |c| puts c.text }
