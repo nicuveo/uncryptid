@@ -73,6 +73,18 @@ class Board
     @@height
   end
 
+  def self.[](t1,t2,t3,t4,t5,t6,elements={})
+    res = Board.new
+    add_tile(res, t1, 0, 0)
+    add_tile(res, t2, 0, 6)
+    add_tile(res, t3, 3, 0)
+    add_tile(res, t4, 3, 6)
+    add_tile(res, t5, 6, 0)
+    add_tile(res, t6, 6, 6)
+    elements.each { |pos, elem| res.add(pos, elem) }
+    return res
+  end
+
   def initialize()
     @data = Array.new(@@width * @@height) { Cell.new }
   end
@@ -111,13 +123,13 @@ class Board
   end
 
   def set(pos, type, elements)
+    puts "#{pos.row},#{pos.col}: #{type} + #{elements}"
     self[pos].type = type
     propagate(pos, type)
     elements.each{ |e| propagate(pos, e) }
   end
 
   def add(pos, element)
-    self[pos].elements << element
     propagate(pos, element)
   end
 
@@ -126,6 +138,32 @@ class Board
   end
 
   private
+  def self.add_tile(board, tileinfo, row, col)
+    ti = tileinfo.dup
+    name = ti.shift
+    case ti
+    when []
+      TILES[name].each_with_index do |line,dy|
+        line.each_with_index do |cell,dx|
+          elements = cell.dup
+          type = elements.shift
+          board.set(Point.new(row+dy,col+dx), type, elements)
+        end
+      end
+    when [:upside_down]
+      TILES[name].each_with_index do |line,dy|
+        line.each_with_index do |cell,dx|
+          elements = cell.dup
+          type = elements.shift
+          board.set(Point.new(row+2-dy,col+5-dx), type, elements)
+        end
+      end
+    else
+      print "ERROR"
+      # TODO: crash the program
+    end
+  end
+
   def propagate(pos, element)
     queue = [[pos,0]]
     while (current, d = queue.shift)
@@ -266,17 +304,17 @@ def draw(board, filename)
 
   rvg = RVG.new(1000,1000).viewbox(0,0,1000,1000) do |canvas|
     canvas.background_fill = "white"
-    terrain_colors = { :forest   => "LightGreen",
+    terrain_colors = { :forest   => "PaleGreen3",
                        :desert   => "khaki",
-                       :mountain => "LightGrey",
+                       :mountain => "cornsilk3",
                        :water    => "PaleTurquoise1",
-                       :swamp    => "plum",
+                       :swamp    => "MediumPurple4",
                      }
     animal_colors = { :bears   => "black",
                       :cougars => "red",
                     }
-    structure_property = { :blue_shack  => ["RoyalBlue", :triangle],
-                           :blue_stone  => ["RoyalBlue", :octogon],
+    structure_property = { :blue_shack  => ["SteelBlue1", :triangle],
+                           :blue_stone  => ["SteelBlue1", :octogon],
                            :green_shack => ["chartreuse", :triangle],
                            :green_stone => ["chartreuse", :octogon],
                            :white_shack => ["white", :triangle],
@@ -292,7 +330,7 @@ def draw(board, filename)
         hex = board[Point.new(y,x)]
         if hex.type
           canvas.g.translate(size * x * 1.5, size * dy * (y * 2 + x%2)) do |body|
-            body.styles(:fill => terrain_colors[hex.type], :stroke => "white", :stroke_width => 2)
+            body.styles(:fill => terrain_colors[hex.type], :stroke => "white", :stroke_width => 4)
             hexagon.call(body, size)
             for a in ANIMALS
               if hex.distances[a] == 0
@@ -325,23 +363,21 @@ end
 
 ### TMP
 
-b = Board.new()
-b.set(Point.new(0,0) , :forest,   [:white_stone])
-b.set(Point.new(8,0) , :swamp,    [:white_stone])
-b.set(Point.new(0,11), :swamp,    [:white_stone])
-b.set(Point.new(8,11), :swamp,    [:white_stone])
-b.set(Point.new(4,4),  :water,    [:bears])
-b.set(Point.new(6,2),  :mountain, [:black_stone])
-b.set(Point.new(6,1),  :swamp,    [])
-b.set(Point.new(3,0),  :desert,   [:cougars])
-b.set(Point.new(3,1),  :desert,   [:cougars])
-b.set(Point.new(3,2),  :desert,   [:green_shack])
-b.set(Point.new(3,3),  :desert,   [])
-b.set(Point.new(4,1),  :forest,   [:blue_shack])
-b.set(Point.new(4,2),  :forest,   [])
-b.set(Point.new(4,3),  :water ,   [:bears])
-b.set(Point.new(5,4),  :forest,   [])
 all_clues(NORMAL).each{ |c| puts c.text }
+
+b = Board[[:tile2],
+          [:tile4],
+          [:tile5],
+          [:tile3],
+          [:tile1,:upside_down],
+          [:tile6],
+          Point.new(2,2) => :white_stone,
+          Point.new(1,9) => :white_shack,
+          Point.new(4,2) => :black_shack,
+          Point.new(4,3) => :blue_shack,
+          Point.new(5,1) => :black_stone,
+          Point.new(7,3) => :blue_stone,
+          Point.new(0,5) => :green_stone,
+          Point.new(2,9) => :green_shack
+         ]
 draw(b, "test.png")
-p Board.neighbours(Point.new(4,2))
-p Board.neighbours(Point.new(4,3))
