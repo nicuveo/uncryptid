@@ -6,13 +6,7 @@ require 'uncryptid/board'
 require 'uncryptid/clue'
 
 module Uncryptid
-  ### Point
-
   Point = Struct.new(:row, :col)
-
-
-
-  ### Elements
 
   TERRAINS = [
     :desert,
@@ -21,18 +15,12 @@ module Uncryptid
     :swamp,
     :water,
   ]
-
   ANIMALS = [:bears, :cougars]
-
   BLUE_STRUCTURES  = [:blue_shack,  :blue_stone]
   GREEN_STRUCTURES = [:green_shack, :green_stone]
   WHITE_STRUCTURES = [:white_shack, :white_stone]
   BLACK_STRUCTURES = [:black_shack, :black_stone]
   ALL_STRUCTURES = BLUE_STRUCTURES + GREEN_STRUCTURES + WHITE_STRUCTURES + BLACK_STRUCTURES
-
-
-
-  ### Modes
 
   Mode = Struct.new(:name, :shacks, :stones, :include_black?, :include_not?)
   MODES = {
@@ -50,9 +38,6 @@ module Uncryptid
     ),
   }
 
-
-  ### Cell
-
   class Cell
     attr_reader :distances
     attr_accessor :type
@@ -63,16 +48,7 @@ module Uncryptid
     end
   end
 
-
-
-
-  ### Clues
-
-
-
   class << self
-    ### Rendering
-
     def draw(board, filename)
       dy = Math.sqrt(3) / 2.0
       hexagon = lambda do |body, size|
