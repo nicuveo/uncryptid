@@ -25,4 +25,4 @@ Uncryptid::Clue.matching_clues(
   Uncryptid::ADVANCED, b,
   Uncryptid::Point.new(2, 3) => true,
   Uncryptid::Point.new(2, 4) => false,
-).each{ |c| puts c.text }
+).each { |c| puts c.text }

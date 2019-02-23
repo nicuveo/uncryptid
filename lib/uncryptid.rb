@@ -25,7 +25,7 @@ module Uncryptid
   GREEN_STRUCTURES = [:green_shack, :green_stone]
   WHITE_STRUCTURES = [:white_shack, :white_stone]
   BLACK_STRUCTURES = [:black_shack, :black_stone]
-  ALL_STRUCTURES = BLUE_STRUCTURES  + GREEN_STRUCTURES + WHITE_STRUCTURES + BLACK_STRUCTURES
+  ALL_STRUCTURES = BLUE_STRUCTURES + GREEN_STRUCTURES + WHITE_STRUCTURES + BLACK_STRUCTURES
 
 
 
@@ -69,7 +69,7 @@ module Uncryptid
     HEIGHT = 9
 
     class << self
-      def create(t1,t2,t3,t4,t5,t6,elements={})
+      def create(t1, t2, t3, t4, t5, t6, elements = {})
         res = Board.new
         add_tile(res, t1, 0, 0)
         add_tile(res, t2, 0, 6)
@@ -172,7 +172,7 @@ module Uncryptid
         ds = self[current].distances
         if d < ds[element]
           ds[element] = d
-          queue += Board.neighbours(current).map{|p| [p,d+1]}
+          queue += Board.neighbours(current).map { |p| [p, d + 1]}
         end
       end
     end
@@ -185,7 +185,7 @@ module Uncryptid
     tile1: [
       [[:water], [:water], [:water], [:water], [:forest], [:forest]],
       [[:swamp], [:swamp], [:water], [:desert], [:forest], [:forest]],
-      [[:swamp], [:swamp], [:desert], [:desert,:bears], [:desert, :bears], [:forest]],
+      [[:swamp], [:swamp], [:desert], [:desert, :bears], [:desert, :bears], [:forest]],
     ],
     tile2: [
       [[:swamp, :cougars], [:forest, :cougars], [:forest, :cougars], [:forest], [:forest], [:forest]],
@@ -222,7 +222,7 @@ module Uncryptid
     class << self
       def all_clues(mode)
         clues = []
-        terrain_pairs = TERRAINS.product(TERRAINS).select{ |a,b| a < b }
+        terrain_pairs = TERRAINS.product(TERRAINS).select { |a, b| a < b }
 
         clues += terrain_pairs.map { |a, b| Clue.new("either #{a} or #{b}", [a, b], within(0)) }
         clues += TERRAINS.map { |t| Clue.new("within 1 of #{t}", [t], within(1)) }
@@ -330,7 +330,7 @@ module Uncryptid
         end
       end
 
-      rvg = Magick::RVG.new(1000,1000).viewbox(0,0,1000,1000) do |canvas|
+      rvg = Magick::RVG.new(1000, 1000).viewbox(0, 0, 1000, 1000) do |canvas|
         canvas.background_fill = "white"
         terrain_colors = {
           forest: "LimeGreen",
