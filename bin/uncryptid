@@ -3,7 +3,7 @@
 
 require 'uncryptid'
 
-b = Uncryptid::Board[
+b = Uncryptid::Board.create(
   [:tile2],
   [:tile4],
   [:tile5],
@@ -18,7 +18,7 @@ b = Uncryptid::Board[
   Uncryptid::Point.new(7, 3) => :blue_stone,
   Uncryptid::Point.new(0, 5) => :green_stone,
   Uncryptid::Point.new(2, 9) => :green_shack
-]
+)
 Uncryptid.draw(b, "test.png")
 
 Uncryptid::Clue.matching_clues(
