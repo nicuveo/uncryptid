@@ -69,7 +69,7 @@ module Uncryptid
     HEIGHT = 9
 
     class << self
-      def [](t1,t2,t3,t4,t5,t6,elements={})
+      def create(t1,t2,t3,t4,t5,t6,elements={})
         res = Board.new
         add_tile(res, t1, 0, 0)
         add_tile(res, t2, 0, 6)
