@@ -1,5 +1,4 @@
 require 'rvg/rvg'
-include Magick
 
 
 
@@ -305,7 +304,7 @@ def draw(board, filename)
     end
   end
 
-  rvg = RVG.new(1000,1000).viewbox(0,0,1000,1000) do |canvas|
+  rvg = Magick::RVG.new(1000,1000).viewbox(0,0,1000,1000) do |canvas|
     canvas.background_fill = "white"
     terrain_colors = { :forest   => "LimeGreen",
                        :desert   => "yellow2",
