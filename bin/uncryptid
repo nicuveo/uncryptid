@@ -21,7 +21,7 @@ b = Uncryptid::Board.create(
   Uncryptid::Point.new(0, 5) => :green_stone,
   Uncryptid::Point.new(2, 9) => :green_shack
 )
-Uncryptid.draw(b, "test.png")
+Uncryptid::Renderer.render(b, "test.png")
 
 Uncryptid::Clue.matching_clues(
   Uncryptid::MODES[:advanced], b,
