@@ -64,40 +64,6 @@ module Uncryptid
   end
 
 
-  ### Tiles
-  TILES = {
-    tile1: [
-      [[:water], [:water], [:water], [:water], [:forest], [:forest]],
-      [[:swamp], [:swamp], [:water], [:desert], [:forest], [:forest]],
-      [[:swamp], [:swamp], [:desert], [:desert, :bears], [:desert, :bears], [:forest]],
-    ],
-    tile2: [
-      [[:swamp, :cougars], [:forest, :cougars], [:forest, :cougars], [:forest], [:forest], [:forest]],
-      [[:swamp], [:swamp], [:forest], [:desert], [:desert], [:desert]],
-      [[:swamp], [:mountain], [:mountain], [:mountain], [:mountain], [:desert]],
-    ],
-    tile3: [
-      [[:swamp], [:swamp], [:forest], [:forest], [:forest], [:water]],
-      [[:swamp, :cougars], [:swamp, :cougars], [:forest], [:mountain], [:water], [:water]],
-      [[:mountain, :cougars], [:mountain], [:mountain], [:mountain], [:water], [:water]],
-    ],
-    tile4: [
-      [[:desert], [:desert], [:mountain], [:mountain], [:mountain], [:mountain]],
-      [[:desert], [:desert], [:mountain], [:water], [:water], [:water, :cougars]],
-      [[:desert], [:desert], [:desert], [:forest], [:forest], [:forest, :cougars]],
-    ],
-    tile5: [
-      [[:swamp], [:swamp], [:swamp], [:mountain], [:mountain], [:mountain]],
-      [[:swamp], [:desert], [:desert], [:water], [:mountain], [:mountain, :bears]],
-      [[:desert], [:desert], [:water], [:water], [:water], [:water, :bears]],
-    ],
-    tile6: [
-      [[:desert, :bears], [:desert], [:swamp], [:swamp], [:swamp], [:forest]],
-      [[:mountain, :bears], [:mountain], [:swamp], [:swamp], [:forest], [:forest]],
-      [[:mountain], [:water], [:water], [:water], [:water], [:forest]],
-    ],
-  }
-
 
 
   ### Clues
