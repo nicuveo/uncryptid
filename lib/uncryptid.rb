@@ -65,16 +65,8 @@ end
 ### Board
 
 class Board
-  @@width  = 12
-  @@height =  9
-
-  def self.width
-    @@width
-  end
-  
-  def self.height
-    @@height
-  end
+  WIDTH = 12
+  HEIGHT = 9
 
   def self.[](t1,t2,t3,t4,t5,t6,elements={})
     res = Board.new
@@ -90,12 +82,12 @@ class Board
   end
 
   def initialize
-    @data = Array.new(@@width * @@height) { Cell.new }
+    @data = Array.new(WIDTH * HEIGHT) { Cell.new }
   end
 
   def self.is_in?(pos)
-    pos.col >= 0 && pos.col < @@width &&
-      pos.row >= 0 && pos.row < @@height
+    pos.col >= 0 && pos.col < WIDTH &&
+      pos.row >= 0 && pos.row < HEIGHT
   end
 
   def self.neighbours(pos)
@@ -124,7 +116,7 @@ class Board
   end
 
   def [](pos)
-    @data[pos.row * @@width + pos.col] if Board.is_in?(pos)
+    @data[pos.row * WIDTH + pos.col] if Board.is_in?(pos)
   end
 
   def set(pos, type, elements)
@@ -348,8 +340,8 @@ def draw(board, filename)
     canvas.translate(87, 131)
     size = 50
 
-    Board.height.times do |y|
-      Board.width.times do |x|
+    Board::HEIGHT.times do |y|
+      Board::WIDTH.times do |x|
         hex = board[Point.new(y, x)]
         next unless hex.type
 
