@@ -3,26 +3,26 @@
 
 require 'uncryptid'
 
-b = Board[
+b = Uncryptid::Board[
   [:tile2],
   [:tile4],
   [:tile5],
   [:tile3],
   [:tile1, :upside_down],
   [:tile6],
-  Point.new(2, 2) => :white_stone,
-  Point.new(1, 9) => :white_shack,
-  Point.new(4, 2) => :black_shack,
-  Point.new(4, 3) => :blue_shack,
-  Point.new(5, 1) => :black_stone,
-  Point.new(7, 3) => :blue_stone,
-  Point.new(0, 5) => :green_stone,
-  Point.new(2, 9) => :green_shack
+  Uncryptid::Point.new(2, 2) => :white_stone,
+  Uncryptid::Point.new(1, 9) => :white_shack,
+  Uncryptid::Point.new(4, 2) => :black_shack,
+  Uncryptid::Point.new(4, 3) => :blue_shack,
+  Uncryptid::Point.new(5, 1) => :black_stone,
+  Uncryptid::Point.new(7, 3) => :blue_stone,
+  Uncryptid::Point.new(0, 5) => :green_stone,
+  Uncryptid::Point.new(2, 9) => :green_shack
 ]
-draw(b, "test.png")
+Uncryptid.draw(b, "test.png")
 
-matching_clues(
-  ADVANCED, b,
-  Point.new(2, 3) => true,
-  Point.new(2, 4) => false,
+Uncryptid.matching_clues(
+  Uncryptid::ADVANCED, b,
+  Uncryptid::Point.new(2, 3) => true,
+  Uncryptid::Point.new(2, 4) => false,
 ).each{ |c| puts c.text }
