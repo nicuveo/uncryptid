@@ -21,7 +21,7 @@ b = Uncryptid::Board[
 ]
 Uncryptid.draw(b, "test.png")
 
-Uncryptid.matching_clues(
+Uncryptid::Clue.matching_clues(
   Uncryptid::ADVANCED, b,
   Uncryptid::Point.new(2, 3) => true,
   Uncryptid::Point.new(2, 4) => false,
