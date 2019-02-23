@@ -5,7 +5,7 @@ module Uncryptid
     class << self
       def all_clues(mode)
         clues = []
-        terrain_pairs = TERRAINS.product(TERRAINS).select { |a, b| a < b }
+        terrain_pairs = TERRAINS.combination(2).to_a
 
         clues += terrain_pairs.map { |a, b| Clue.new("either #{a} or #{b}", [a, b], within(0)) }
         clues += TERRAINS.map { |t| Clue.new("within 1 of #{t}", [t], within(1)) }
