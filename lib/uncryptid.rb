@@ -7,8 +7,6 @@ require 'uncryptid/clue'
 require 'uncryptid/renderer'
 
 module Uncryptid
-  Point = Struct.new(:row, :col)
-
   TERRAINS = [
     :desert,
     :forest,
@@ -38,6 +36,52 @@ module Uncryptid
       true, true
     ),
   }
+
+  class Location
+    attr_reader :col, :row
+
+    def initialize(col:, row:)
+      @col = col
+      @row = row
+    end
+
+    def inspect
+      "#<Location #{self}>"
+    end
+
+    def to_s
+      "(#{col}, #{row})"
+    end
+
+    def neighbours
+      directions = [
+        Location.new(row: -1, col:  0),
+        Location.new(row:  1, col:  0),
+        Location.new(row:  0, col: -1),
+        Location.new(row:  0, col:  1),
+      ]
+      directions += if col.even?
+        [
+          Location.new(row: -1, col: -1),
+          Location.new(row: -1, col:  1),
+        ]
+      else
+        [
+          Location.new(row: 1, col: -1),
+          Location.new(row: 1, col:  1),
+        ]
+      end
+
+      directions.map { |dir| self + dir }
+    end
+
+    def +(other)
+      Location.new(
+        col: col + other.col,
+        row: row + other.row,
+      )
+    end
+  end
 
   class Cell
     attr_reader :distances

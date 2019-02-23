@@ -40,7 +40,7 @@ module Uncryptid
 
     class << self
       def create(t1, t2, t3, t4, t5, t6, elements = {})
-        res = Board.new
+        res = Board.new(width: WIDTH, height: HEIGHT)
         add_tile(res, t1, 0, 0)
         add_tile(res, t2, 0, 6)
         add_tile(res, t3, 3, 0)
@@ -50,37 +50,6 @@ module Uncryptid
         elements.each { |pos, elem| res.add(pos, elem) }
 
         res
-      end
-
-      def is_in?(pos)
-        pos.col >= 0 && pos.col < WIDTH &&
-          pos.row >= 0 && pos.row < HEIGHT
-      end
-
-      def neighbours(pos)
-        r = pos.row
-        c = pos.col
-        result = if c.even?
-          [
-            Point.new(r-1,c  ),
-            Point.new(r+1,c  ),
-            Point.new(r,  c-1),
-            Point.new(r,  c+1),
-            Point.new(r-1,c-1),
-            Point.new(r-1,c+1),
-          ]
-        else
-          [
-            Point.new(r-1,c  ),
-            Point.new(r+1,c  ),
-            Point.new(r,  c-1),
-            Point.new(r,  c+1),
-            Point.new(r+1,c-1),
-            Point.new(r+1,c+1),
-          ]
-        end
-
-        result.select { |p| is_in?(p) }
       end
 
       private
@@ -94,7 +63,7 @@ module Uncryptid
             line.each_with_index do |cell, dx|
               elements = cell.dup
               type = elements.shift
-              board.set(Point.new(row + dy, col + dx), type, elements)
+              board.set(Location.new(row: row + dy, col: col + dx), type, elements)
             end
           end
         when [:upside_down]
@@ -102,23 +71,40 @@ module Uncryptid
             line.each_with_index do |cell, dx|
               elements = cell.dup
               type = elements.shift
-              board.set(Point.new(row + 2 - dy, col + 5 - dx), type, elements)
+              board.set(Location.new(row: row + 2 - dy, col: col + 5 - dx), type, elements)
             end
           end
         else
-          puts "ERROR"
-          # TODO: crash the program
+          raise "unknown tile info: #{ti}"
         end
       end
     end
 
-    def initialize
-      @data = Array.new(WIDTH * HEIGHT) { Cell.new }
+    attr_reader :height, :width
+
+    def initialize(height: HEIGHT, width: WIDTH)
+      @height = height
+      @width = width
     end
 
     def [](pos)
-      @data[pos.row * WIDTH + pos.col] if Board.is_in?(pos)
+      @data[pos.row * width + pos.col] if include?(pos)
     end
+
+    def include?(pos)
+      pos.col >= 0 && pos.col < width &&
+        pos.row >= 0 && pos.row < height
+    end
+
+    def each
+      (0...height).each do |row|
+        (0...width).each do |col|
+          pos = Location.new(row: row, col: col)
+          yield pos, self[pos]
+        end
+      end
+    end
+    include Enumerable
 
     def set(pos, type, elements)
       self[pos].type = type
@@ -142,7 +128,7 @@ module Uncryptid
         ds = self[current].distances
         if d < ds[element]
           ds[element] = d
-          queue += Board.neighbours(current).map { |p| [p, d + 1]}
+          queue += current.neighbours.select { |h| include?(h) }.map { |h| [h, d + 1] }
         end
       end
     end
