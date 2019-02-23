@@ -35,20 +35,20 @@ module Uncryptid
   ### Modes
 
   Mode = Struct.new(:name, :shacks, :stones, :include_black?, :include_not?)
-
-  NORMAL = Mode.new(
-    :normal,
-    [:blue_shack, :green_shack, :white_shack],
-    [:blue_stone, :green_stone, :white_stone],
-    false, false
-  )
-  ADVANCED = Mode.new(
-    :advanced,
-    [:blue_shack, :green_shack, :white_shack, :black_shack],
-    [:blue_stone, :green_stone, :white_stone, :black_stone],
-    true, true
-  )
-
+  MODES = {
+    normal: Mode.new(
+      :normal,
+      [:blue_shack, :green_shack, :white_shack],
+      [:blue_stone, :green_stone, :white_stone],
+      false, false
+    ),
+    advanced: Mode.new(
+      :advanced,
+      [:blue_shack, :green_shack, :white_shack, :black_shack],
+      [:blue_stone, :green_stone, :white_stone, :black_stone],
+      true, true
+    ),
+  }
 
 
   ### Cell
