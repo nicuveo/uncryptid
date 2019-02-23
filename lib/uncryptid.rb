@@ -2,6 +2,9 @@
 
 require 'rvg/rvg'
 
+require 'uncryptid/board'
+require 'uncryptid/clue'
+
 module Uncryptid
   ### Point
 
@@ -61,125 +64,6 @@ module Uncryptid
   end
 
 
-
-  ### Board
-
-  class Board
-    WIDTH = 12
-    HEIGHT = 9
-
-    class << self
-      def create(t1, t2, t3, t4, t5, t6, elements = {})
-        res = Board.new
-        add_tile(res, t1, 0, 0)
-        add_tile(res, t2, 0, 6)
-        add_tile(res, t3, 3, 0)
-        add_tile(res, t4, 3, 6)
-        add_tile(res, t5, 6, 0)
-        add_tile(res, t6, 6, 6)
-        elements.each { |pos, elem| res.add(pos, elem) }
-
-        res
-      end
-
-      def is_in?(pos)
-        pos.col >= 0 && pos.col < WIDTH &&
-          pos.row >= 0 && pos.row < HEIGHT
-      end
-
-      def neighbours(pos)
-        r = pos.row
-        c = pos.col
-        result = if c.even?
-          [
-            Point.new(r-1,c  ),
-            Point.new(r+1,c  ),
-            Point.new(r,  c-1),
-            Point.new(r,  c+1),
-            Point.new(r-1,c-1),
-            Point.new(r-1,c+1),
-          ]
-        else
-          [
-            Point.new(r-1,c  ),
-            Point.new(r+1,c  ),
-            Point.new(r,  c-1),
-            Point.new(r,  c+1),
-            Point.new(r+1,c-1),
-            Point.new(r+1,c+1),
-          ]
-        end
-
-        result.select { |p| is_in?(p) }
-      end
-
-      private
-
-      def add_tile(board, tileinfo, row, col)
-        ti = tileinfo.dup
-        name = ti.shift
-        case ti
-        when []
-          TILES[name].each_with_index do |line, dy|
-            line.each_with_index do |cell, dx|
-              elements = cell.dup
-              type = elements.shift
-              board.set(Point.new(row + dy, col + dx), type, elements)
-            end
-          end
-        when [:upside_down]
-          TILES[name].each_with_index do |line, dy|
-            line.each_with_index do |cell, dx|
-              elements = cell.dup
-              type = elements.shift
-              board.set(Point.new(row + 2 - dy, col + 5 - dx), type, elements)
-            end
-          end
-        else
-          puts "ERROR"
-          # TODO: crash the program
-        end
-      end
-    end
-
-    def initialize
-      @data = Array.new(WIDTH * HEIGHT) { Cell.new }
-    end
-
-    def [](pos)
-      @data[pos.row * WIDTH + pos.col] if Board.is_in?(pos)
-    end
-
-    def set(pos, type, elements)
-      self[pos].type = type
-      propagate(pos, type)
-      elements.each { |e| propagate(pos, e) }
-    end
-
-    def add(pos, element)
-      propagate(pos, element)
-    end
-
-    def distance(pos, element)
-      self[pos]&.distances[element]
-    end
-
-    private
-
-    def propagate(pos, element)
-      queue = [[pos, 0]]
-      while (current, d = queue.shift)
-        ds = self[current].distances
-        if d < ds[element]
-          ds[element] = d
-          queue += Board.neighbours(current).map { |p| [p, d + 1]}
-        end
-      end
-    end
-  end
-
-
-
   ### Tiles
   TILES = {
     tile1: [
@@ -218,75 +102,7 @@ module Uncryptid
 
   ### Clues
 
-  class Clue
-    class << self
-      def all_clues(mode)
-        clues = []
-        terrain_pairs = TERRAINS.product(TERRAINS).select { |a, b| a < b }
 
-        clues += terrain_pairs.map { |a, b| Clue.new("either #{a} or #{b}", [a, b], within(0)) }
-        clues += TERRAINS.map { |t| Clue.new("within 1 of #{t}", [t], within(1)) }
-        clues << Clue.new("within 1 of animal territory", ANIMALS, within(1))
-        clues << Clue.new("within 2 of a standing stone", mode.stones, within(2))
-        clues << Clue.new("within 2 of an abandoned shack", mode.shacks, within(2))
-        clues << Clue.new("within 2 of bear territory", [:bears], within(2))
-        clues << Clue.new("within 2 of cougar territory", [:cougars], within(2))
-        clues << Clue.new("within 3 of blue structure", BLUE_STRUCTURES, within(3))
-        clues << Clue.new("within 3 of green structure", GREEN_STRUCTURES, within(3))
-        clues << Clue.new("within 3 of white structure", WHITE_STRUCTURES, within(3))
-        if mode.include_black?
-          clues << Clue.new("within 3 of black structure", BLACK_STRUCTURES, within(3))
-        end
-
-        if mode.include_not?
-          clues += terrain_pairs.map { |a, b| Clue.new("neither #{a} nor #{b}", [a, b], not_within(0)) }
-          clues += TERRAINS.map { |t| Clue.new("not within 1 of #{t}", [t], not_within(1)) }
-          clues << Clue.new("not within 1 of animal territory", ANIMALS, not_within(1))
-          clues << Clue.new("not within 2 of a standing stone", mode.stones, not_within(2))
-          clues << Clue.new("not within 2 of an abandoned shack", mode.shacks, not_within(2))
-          clues << Clue.new("not within 2 of bear territory", [:bears], not_within(2))
-          clues << Clue.new("not within 2 of cougar territory", [:cougars], not_within(2))
-          clues << Clue.new("not within 3 of blue structure", BLUE_STRUCTURES, not_within(3))
-          clues << Clue.new("not within 3 of green structure", GREEN_STRUCTURES, not_within(3))
-          clues << Clue.new("not within 3 of white structure", WHITE_STRUCTURES, not_within(3))
-          if mode.include_black?
-            clues << Clue.new("not within 3 of black structure", BLACK_STRUCTURES, not_within(3))
-          end
-        end
-
-        clues
-      end
-
-      def matching_clues(mode, board, tokens)
-        tokens.reduce(all_clues(mode)) do |clues, entry|
-          pos, matches = entry
-          clues.select { |clue| clue.check(board, pos) == matches }
-        end
-      end
-
-      private
-
-      def within(d)
-        lambda { |x| x <= d }
-      end
-
-      def not_within(d)
-        lambda { |x| x > d }
-      end
-    end
-
-    attr_reader :text, :elements, :predicate
-
-    def initialize(text, elements, predicate)
-      @text = text
-      @elements = elements
-      @predicate = predicate
-    end
-
-    def check(board, pos)
-      predicate.call(elements.map { |e| board.distance(pos, e) }.min)
-    end
-  end
 
   class << self
     ### Rendering
