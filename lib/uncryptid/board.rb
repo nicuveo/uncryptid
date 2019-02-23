@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Uncryptid
   class Board
     WIDTH = 12
