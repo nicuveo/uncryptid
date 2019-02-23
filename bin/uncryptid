@@ -1,25 +1,28 @@
-#! /usr/bin/ruby -w
+#!/usr/bin/ruby -w
+# frozen_string_literal: true
 
 require 'uncryptid'
 
-b = Board[[:tile2],
-          [:tile4],
-          [:tile5],
-          [:tile3],
-          [:tile1,:upside_down],
-          [:tile6],
-          Point.new(2,2) => :white_stone,
-          Point.new(1,9) => :white_shack,
-          Point.new(4,2) => :black_shack,
-          Point.new(4,3) => :blue_shack,
-          Point.new(5,1) => :black_stone,
-          Point.new(7,3) => :blue_stone,
-          Point.new(0,5) => :green_stone,
-          Point.new(2,9) => :green_shack
-         ]
+b = Board[
+  [:tile2],
+  [:tile4],
+  [:tile5],
+  [:tile3],
+  [:tile1, :upside_down],
+  [:tile6],
+  Point.new(2, 2) => :white_stone,
+  Point.new(1, 9) => :white_shack,
+  Point.new(4, 2) => :black_shack,
+  Point.new(4, 3) => :blue_shack,
+  Point.new(5, 1) => :black_stone,
+  Point.new(7, 3) => :blue_stone,
+  Point.new(0, 5) => :green_stone,
+  Point.new(2, 9) => :green_shack
+]
 draw(b, "test.png")
 
-matching_clues(ADVANCED, b,
-               Point.new(2,3) => true,
-               Point.new(2,4) => false,
-              ).each{ |c| puts c.text }
+matching_clues(
+  ADVANCED, b,
+  Point.new(2, 3) => true,
+  Point.new(2, 4) => false,
+).each{ |c| puts c.text }
