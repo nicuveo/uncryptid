@@ -85,6 +85,7 @@ module Uncryptid
     def initialize(height: HEIGHT, width: WIDTH)
       @height = height
       @width = width
+      @data = Array.new(height * width) { Cell.new }
     end
 
     def [](pos)
